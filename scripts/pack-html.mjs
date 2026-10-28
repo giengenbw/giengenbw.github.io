@@ -1,0 +1,10 @@
+import fs from 'node:fs';
+import path from 'node:path';
+const assets=path.resolve('dist/assets');
+const scripts=fs.readdirSync(assets).filter(n=>n.endsWith('.js'));
+if(scripts.length!==1)throw Error('Expected exactly one self-contained application bundle.');
+const js=fs.readFileSync(path.join(assets,scripts[0]),'utf8').replace(/<\/script/gi,'<\\/script');
+const css=fs.readdirSync(assets).filter(n=>n.endsWith('.css')).map(n=>fs.readFileSync(path.join(assets,n),'utf8')).join('\n');
+const html=`<!doctype html><html lang="de"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ZIEGLER LAB V9 · Deutsch / English / 中文</title><style>${css}</style></head><body><div id="root"></div><noscript>Bitte JavaScript aktivieren. Please enable JavaScript. 请启用 JavaScript。</noscript><script>${js}</script></body></html>`;
+fs.writeFileSync('ZIEGLER_LAB_V9_DE_EN_ZH.html',html);
+console.log('Single-file offline HTML created. No external scripts or styles.');

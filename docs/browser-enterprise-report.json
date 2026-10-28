@@ -1,0 +1,50 @@
+{
+  "offline_languages": [
+    {
+      "ui": "de",
+      "reads": [
+        "orders",
+        "messages",
+        "files"
+      ],
+      "actions": [
+        "sap.createRequisition",
+        "graph.createDraft"
+      ],
+      "result": "passed"
+    },
+    {
+      "ui": "en",
+      "reads": [
+        "orders",
+        "messages",
+        "files"
+      ],
+      "actions": [
+        "sap.createRequisition",
+        "graph.createDraft"
+      ],
+      "result": "passed"
+    },
+    {
+      "ui": "zh",
+      "reads": [
+        "orders",
+        "messages",
+        "files"
+      ],
+      "actions": [
+        "sap.createRequisition",
+        "graph.createDraft"
+      ],
+      "result": "passed"
+    }
+  ],
+  "flows": [
+    "401 and 429 read errors, uncertain write quarantine and disabled re-execution",
+    "standalone file rejects real gateway connection",
+    "project-subpath static build + separate authenticated sandbox gateway: CORS, reads, approved draft, token never persisted and cleared on reload"
+  ],
+  "runtime_errors": [],
+  "offline_http_requests": []
+}

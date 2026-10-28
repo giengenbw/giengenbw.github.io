@@ -1,0 +1,529 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "ZIEGLER LAB V9 gateway",
+    "version": "0.9.0",
+    "description": "Integration reference, not production certification. Default sandbox; real writes disabled. No sendMail, invoice posting or payment endpoint."
+  },
+  "security": [
+    {
+      "gatewayBearer": []
+    }
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Liveness only; no business data",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error code",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/capabilities": {
+      "get": {
+        "summary": "Configured capabilities, actor and scopes; not an upstream permission probe",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error code",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/sap/purchase-orders": {
+      "get": {
+        "summary": "Read up to 20 mapped order review copies",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error code",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/graph/messages": {
+      "get": {
+        "summary": "Read up to 20 inbox summaries",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error code",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/graph/files": {
+      "get": {
+        "summary": "Read up to 20 root file metadata entries",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error code",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/audit": {
+      "get": {
+        "summary": "Volatile session action history; not tamper-evident audit",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error code",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/actions/preview": {
+      "post": {
+        "summary": "Create immutable five-minute action plan",
+        "responses": {
+          "201": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Plan"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error code",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "action",
+                  "payload"
+                ],
+                "properties": {
+                  "action": {
+                    "type": "string",
+                    "enum": [
+                      "sap.createRequisition",
+                      "sap.createPurchaseOrder",
+                      "graph.createDraft"
+                    ]
+                  },
+                  "payload": {
+                    "oneOf": [
+                      {
+                        "$ref": "#/components/schemas/MailDraft"
+                      },
+                      {
+                        "$ref": "#/components/schemas/CaseInput"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/actions/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "get": {
+        "summary": "Read plan; creator or authorized approver",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Plan"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error code",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/actions/{id}/approve": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "post": {
+        "summary": "Explicit approval; different actor required in real gateway",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Plan"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error code",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HashInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/actions/{id}/execute": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "Idempotency-Key",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "maxLength": 120
+          }
+        }
+      ],
+      "post": {
+        "summary": "Execute frozen plan once within current process; uncertain outcomes quarantined",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Plan"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error code",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HashInput"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "gatewayBearer": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "Entra v2 JWT (real mode) or temporary development token (sandbox only)"
+      }
+    },
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "MailDraft": {
+        "type": "object",
+        "required": [
+          "to",
+          "subject",
+          "body"
+        ],
+        "properties": {
+          "to": {
+            "type": "string",
+            "format": "email"
+          },
+          "subject": {
+            "type": "string",
+            "maxLength": 250
+          },
+          "body": {
+            "type": "string",
+            "maxLength": 20000
+          }
+        }
+      },
+      "CaseInput": {
+        "type": "object",
+        "required": [
+          "case"
+        ],
+        "properties": {
+          "case": {
+            "type": "object",
+            "description": "Local case validated by src/engine.mjs; not proof of enterprise approval.",
+            "required": [
+              "id",
+              "banf",
+              "po",
+              "supplier",
+              "lines"
+            ]
+          }
+        }
+      },
+      "Plan": {
+        "type": "object",
+        "required": [
+          "id",
+          "action",
+          "payload",
+          "target",
+          "hash",
+          "state",
+          "expiresAt",
+          "mode"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "sap.createRequisition",
+              "sap.createPurchaseOrder",
+              "graph.createDraft"
+            ]
+          },
+          "payload": {
+            "type": "object"
+          },
+          "target": {
+            "type": "object"
+          },
+          "hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "preview",
+              "approved",
+              "executing",
+              "completed",
+              "failed",
+              "uncertain"
+            ]
+          },
+          "expiresAt": {
+            "type": "number",
+            "description": "Unix epoch milliseconds"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "sandbox",
+              "gateway"
+            ]
+          },
+          "creator": {
+            "type": "string"
+          },
+          "approver": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "result": {
+            "type": [
+              "object",
+              "null"
+            ]
+          }
+        }
+      },
+      "HashInput": {
+        "type": "object",
+        "required": [
+          "hash"
+        ],
+        "properties": {
+          "hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          }
+        }
+      }
+    }
+  }
+}
